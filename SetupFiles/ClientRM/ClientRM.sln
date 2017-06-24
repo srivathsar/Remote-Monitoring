@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ClientRM", "ClientRM\ClientRM.vdproj", "{78469BC8-178D-4342-8E0A-F95FBAFECC75}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78469BC8-178D-4342-8E0A-F95FBAFECC75}.Debug|Default.ActiveCfg = Debug
+		{78469BC8-178D-4342-8E0A-F95FBAFECC75}.Debug|Default.Build.0 = Debug
+		{78469BC8-178D-4342-8E0A-F95FBAFECC75}.Release|Default.ActiveCfg = Release
+		{78469BC8-178D-4342-8E0A-F95FBAFECC75}.Release|Default.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

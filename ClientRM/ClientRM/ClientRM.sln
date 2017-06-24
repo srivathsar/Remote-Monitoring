@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClientRM", "ClientRM\ClientRM.vcxproj", "{7FA69F05-7E75-4364-8CCD-32240228297E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyLogger", "..\KeyLogger\KeyLogger\KeyLogger.vcxproj", "{88EFC57B-6298-47ED-BACB-C9FD01E15534}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyLogIF", "..\KeyLogIF\KeyLogIF\KeyLogIF.vcxproj", "{EBDB911F-7DD7-47BB-8750-0EC9385EFF4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgGrbIt", "..\ImgGrbIt\ImgGrbIt\ImgGrbIt.vcxproj", "{29D9ACA9-FF2B-41D1-855F-CE942B38117A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageGrab", "..\ImageGrab\ImageGrab\ImageGrab.vcxproj", "{46C0CA1E-60DB-4042-9E2E-D385D3214494}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBrowzRM", "..\FBrowzRM\FBrowzRM\FBrowzRM.vcxproj", "{2C9FC81F-B75B-4E71-9F64-FF9E8825A287}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FA69F05-7E75-4364-8CCD-32240228297E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7FA69F05-7E75-4364-8CCD-32240228297E}.Debug|Win32.Build.0 = Debug|Win32
+		{7FA69F05-7E75-4364-8CCD-32240228297E}.Release|Win32.ActiveCfg = Release|Win32
+		{7FA69F05-7E75-4364-8CCD-32240228297E}.Release|Win32.Build.0 = Release|Win32
+		{88EFC57B-6298-47ED-BACB-C9FD01E15534}.Debug|Win32.ActiveCfg = Debug|Win32
+		{88EFC57B-6298-47ED-BACB-C9FD01E15534}.Debug|Win32.Build.0 = Debug|Win32
+		{88EFC57B-6298-47ED-BACB-C9FD01E15534}.Release|Win32.ActiveCfg = Release|Win32
+		{88EFC57B-6298-47ED-BACB-C9FD01E15534}.Release|Win32.Build.0 = Release|Win32
+		{EBDB911F-7DD7-47BB-8750-0EC9385EFF4C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EBDB911F-7DD7-47BB-8750-0EC9385EFF4C}.Debug|Win32.Build.0 = Debug|Win32
+		{EBDB911F-7DD7-47BB-8750-0EC9385EFF4C}.Release|Win32.ActiveCfg = Release|Win32
+		{EBDB911F-7DD7-47BB-8750-0EC9385EFF4C}.Release|Win32.Build.0 = Release|Win32
+		{29D9ACA9-FF2B-41D1-855F-CE942B38117A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{29D9ACA9-FF2B-41D1-855F-CE942B38117A}.Debug|Win32.Build.0 = Debug|Win32
+		{29D9ACA9-FF2B-41D1-855F-CE942B38117A}.Release|Win32.ActiveCfg = Release|Win32
+		{29D9ACA9-FF2B-41D1-855F-CE942B38117A}.Release|Win32.Build.0 = Release|Win32
+		{46C0CA1E-60DB-4042-9E2E-D385D3214494}.Debug|Win32.ActiveCfg = Debug|Win32
+		{46C0CA1E-60DB-4042-9E2E-D385D3214494}.Debug|Win32.Build.0 = Debug|Win32
+		{46C0CA1E-60DB-4042-9E2E-D385D3214494}.Release|Win32.ActiveCfg = Release|Win32
+		{46C0CA1E-60DB-4042-9E2E-D385D3214494}.Release|Win32.Build.0 = Release|Win32
+		{2C9FC81F-B75B-4E71-9F64-FF9E8825A287}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2C9FC81F-B75B-4E71-9F64-FF9E8825A287}.Debug|Win32.Build.0 = Debug|Win32
+		{2C9FC81F-B75B-4E71-9F64-FF9E8825A287}.Release|Win32.ActiveCfg = Release|Win32
+		{2C9FC81F-B75B-4E71-9F64-FF9E8825A287}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
