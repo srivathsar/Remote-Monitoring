@@ -25,20 +25,12 @@ extern	WCHAR	CurrentDirectory[MAX_PATH + 1];
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
 
 BOOL InitProcess() {
-    static BOOL fInitCrit = FALSE;
     BOOL FuncRetVal = FALSE;
-
 
     if (fInitDone == FALSE) {
         lpDataTransferThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)TransferLinkListData, NULL, 0, lpDataTransferThreadID);
         if (lpDataTransferThread == NULL)
             return FALSE;
-    }
-
-    if (fInitCrit == FALSE) {
-        fInitCrit = TRUE;
-        InitializeCriticalSection(&csAppInit);
-        InitializeCriticalSection(&csLinkList);
     }
 
     __try {														// thread in each process for loading configration

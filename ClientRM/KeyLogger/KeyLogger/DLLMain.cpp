@@ -29,7 +29,11 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 	switch( nReason )
 	{
 	case DLL_PROCESS_ATTACH :
-		break;
+        {
+            InitializeCriticalSection(&csAppInit);
+            InitializeCriticalSection(&csLinkList);
+            break;
+        }
 
 	case DLL_THREAD_ATTACH :
 		break;
