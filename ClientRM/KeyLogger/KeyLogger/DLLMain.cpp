@@ -15,11 +15,11 @@ extern	CRITICAL_SECTION	csLinkList;
 
 #pragma data_seg( "SharedSegment" )
 
-	HHOOK	hWndHook = NULL;
-	BOOL	fHookFlag = FALSE;									//flag indicating whether dll is hooked to all the applications or not
-	WCHAR	CurrentDirectory[MAX_PATH + 1] = {0};
+HHOOK	hWndHook = NULL;
+BOOL	fHookFlag = FALSE;									//flag indicating whether dll is hooked to all the applications or not
+WCHAR	CurrentDirectory[MAX_PATH + 1] = {0};
 
-	BOOL	bKLExitAllReadConfigThread = FALSE;
+BOOL	bKLExitAllReadConfigThread = FALSE;
 
 #pragma data_seg()
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
@@ -45,7 +45,7 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 	case DLL_PROCESS_DETACH :
 		{
 			bKLExitReadConfigThread = TRUE;
-			StartTransfer();									// call happens when window closes
+			StartTransfer();    // call happens when window closes
 
 			DeleteCriticalSection( &csLinkList );
 			DeleteCriticalSection( &csAppInit );
@@ -63,7 +63,6 @@ BOOL InstallKLHook( WCHAR *CPMDirectory )
 {
 	hWndHook = SetWindowsHookEx( WH_GETMESSAGE, (HOOKPROC)KLGetMsgProc, (HINSTANCE)hInstance, 0 );
 	if( hWndHook == NULL )
-
 		return FALSE;
 
 	fHookFlag = TRUE;
@@ -172,24 +171,25 @@ LRESULT CALLBACK KLGetMsgProc( int nCode, WPARAM wParam, LPARAM lParam )
 	return CallNextHookEx( hWndHook, nCode, wParam, lParam );
 }
 
-BOOL NeverHookThisProcess()																// This function is used for making sure that hook doesnt happen to certain applications
+// This function is used for making sure that hook doesnt happen to certain applications
+BOOL NeverHookThisProcess()
 {
-	WCHAR wszFilePath[MAX_PATH + 1];
-	WCHAR *pDestFile = NULL;
-	int nRetPath;
+    WCHAR wszFilePath[MAX_PATH + 1];
+    WCHAR *pDestFile = NULL;
+    int nRetPath;
 
-	// List of application to which hooking should not be done
-	WCHAR *pIgnoreList[10] = { L"devenv.exe", L"explorer.exe", L"serverrm.exe", L"clientrm.exe", NULL };
+    // List of application to which hooking should not be done
+    WCHAR *pIgnoreList[10] = { L"devenv.exe", L"explorer.exe", L"serverrm.exe", L"clientrm.exe", NULL };
 
-	nRetPath = GetModuleFileName( NULL, wszFilePath, MAX_PATH );						// Getting the .exe file path of the application 
-	if( nRetPath == 0 )
-		return FALSE;									
-	
-	for( int Index = 0; pIgnoreList[Index] != NULL; Index++ )
-	{
-		pDestFile = StrStrI( wszFilePath, pIgnoreList[Index] );							// Comparing file path with the each of the application in ignore list
-		if( pDestFile )
-			return(TRUE);
-	}
-	return FALSE;
+    nRetPath = GetModuleFileName(NULL, wszFilePath, MAX_PATH);  // Getting the .exe file path of the application 
+    if (nRetPath == 0)
+        return FALSE;
+
+    for (int Index = 0; pIgnoreList[Index] != NULL; Index++)
+    {
+        pDestFile = StrStrI(wszFilePath, pIgnoreList[Index]);   // Comparing file path with the each of the application in ignore list
+        if (pDestFile)
+            return TRUE;
+    }
+    return FALSE;
 }
