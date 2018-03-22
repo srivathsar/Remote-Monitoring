@@ -6,6 +6,7 @@ extern	CRITICAL_SECTION	csLinkList;
 extern	HINSTANCE			hInstance;
 extern	KLTEMPDATA			*pStartNode;
 extern	BOOL				bKLExitReadConfigThread;
+extern WCHAR g_szCurApp[];
 
 #pragma data_seg( "SharedSegment" )
 extern BOOL	bKLExitAllReadConfigThread;
@@ -14,7 +15,15 @@ extern BOOL	bKLExitAllReadConfigThread;
 
 DWORD WINAPI TransferLinkListData(LPVOID lParam)
 {
-    DWORD dwRetVal = 0;
+    HMODULE hMod = NULL;
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)TransferLinkListData, &hMod))
+    {
+        return GetLastError();
+    }
+
+    WCHAR szMsg[MAX_PATH];
+    swprintf_s(szMsg, L"TransferLinkListData running in %s, threadID %u", g_szCurApp, GetCurrentThreadId());
+    OutputDebugString(szMsg);
 
     while (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
     {
@@ -23,7 +32,10 @@ DWORD WINAPI TransferLinkListData(LPVOID lParam)
         if (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
             StartTransfer();
     }
-    return TRUE;
+    swprintf_s(szMsg, L"TransferLinkListData exiting from %s, threadID %u", g_szCurApp, GetCurrentThreadId());
+    OutputDebugString(szMsg);
+    FreeLibraryAndExitThread(hMod, ERROR_SUCCESS);
+    return ERROR_SUCCESS; // unreachable code
 }
 
 BOOL StartTransfer()

