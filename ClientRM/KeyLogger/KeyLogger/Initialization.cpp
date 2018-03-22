@@ -24,29 +24,25 @@ extern	WCHAR	CurrentDirectory[MAX_PATH + 1];
 #pragma data_seg()
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
 
-BOOL InitProcess() {
-    static BOOL fInitCrit = FALSE;
-    BOOL FuncRetVal = FALSE;
+BOOL InitProcess()
+{
+    BOOL funcRetVal = FALSE;
 
-
-    if (fInitDone == FALSE) {
+    if (fInitDone == FALSE)
+    {
         lpDataTransferThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)TransferLinkListData, NULL, 0, lpDataTransferThreadID);
         if (lpDataTransferThread == NULL)
             return FALSE;
     }
 
-    if (fInitCrit == FALSE) {
-        fInitCrit = TRUE;
-        InitializeCriticalSection(&csAppInit);
-        InitializeCriticalSection(&csLinkList);
-    }
-
-    __try {														// thread in each process for loading configration
+    __try
+    {														// thread in each process for loading configration
         EnterCriticalSection(&csAppInit);
 
-        if (fInitDone == FALSE) {
-            FuncRetVal = ReadKLConfig();					// called only the 1st time a key is received from a process..
-            if (FuncRetVal == FALSE)
+        if (fInitDone == FALSE)
+        {
+            funcRetVal = ReadKLConfig();					// called only the 1st time a key is received from a process..
+            if (funcRetVal == FALSE)
                 return FALSE;
 
             hReadNewConfigThread = CreateThread(NULL, 0, ReadNewKLConfiguration, NULL, 0, &dwRCThreadID);
@@ -56,12 +52,14 @@ BOOL InitProcess() {
 
         return TRUE;
     }
-    __finally {
+    __finally
+    {
         LeaveCriticalSection(&csAppInit);
     }
 }
 
-BOOL ReadKLConfig() {
+BOOL ReadKLConfig()
+{
     WCHAR wszFilePath[MAX_PATH + 1];
     WCHAR *pdest = NULL;
 
@@ -74,7 +72,8 @@ BOOL ReadKLConfig() {
 
     errno_t iError;
 
-    __try {
+    __try
+    {
         dwRetPath = GetModuleFileName(NULL, wszFilePath, MAX_PATH);
         if (dwRetPath == 0)
             return FALSE;
@@ -83,14 +82,16 @@ BOOL ReadKLConfig() {
         wsprintf(wszConfigFilePath, L"%s\\%s\\KLConfig.conf", CurrentDirectory, FP_KL_DIR);
 
         iError = _wfopen_s(&fpConfig, wszConfigFilePath, L"rb");
-        if (iError != 0) {
+        if (iError != 0)
+        {
             OutputDebugString(L"Config file not found");
             return FALSE;
         }
 
         fread(&KLConfig, sizeof(KLCONFIG), 1, fpConfig);
 
-        for (Index = 0; Index < KLConfig.nApps; Index++) {
+        for (Index = 0; Index < KLConfig.nApps; Index++)
+        {
             //pdest = wcsstr( wszFilePath, KLConfig.AppList[Index] );
             pdest = StrStrI(wszFilePath, KLConfig.AppList[Index]);
             if (pdest == NULL)
@@ -107,7 +108,8 @@ BOOL ReadKLConfig() {
 
         return TRUE;
     }
-    __finally {
+    __finally
+    {
         if (fpConfig != NULL)
             fclose(fpConfig);
     }

@@ -12,19 +12,22 @@ extern BOOL	bKLExitAllReadConfigThread;
 #pragma data_seg()
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
 
-DWORD WINAPI TransferLinkListData(LPVOID lParam) {
+DWORD WINAPI TransferLinkListData(LPVOID lParam)
+{
     DWORD dwRetVal = 0;
 
-    while (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE) {
+    while (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
+    {
         // send data to KLIF after every 20 seconds..
         Sleep(20000);
-        if (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE)
+        if (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
             StartTransfer();
     }
     return TRUE;
 }
 
-BOOL StartTransfer() {
+BOOL StartTransfer()
+{
     KLTEMPDATA *pCurNode = NULL;
     COPYDATASTRUCT cdsLinkList;
     HRESULT hResult = 0;
@@ -38,8 +41,10 @@ BOOL StartTransfer() {
 
     pCurNode = pStartNode;
 
-    while (pCurNode != NULL) {
-        if (pCurNode->KeyCount == 0) {
+    while (pCurNode != NULL)
+    {
+        if (pCurNode->KeyCount == 0)
+        {
             pCurNode = pCurNode->pNextLink;
             continue;
         }
