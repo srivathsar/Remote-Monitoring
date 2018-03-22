@@ -9,7 +9,6 @@ extern	BOOL			fInitDone;
 extern	BOOL			fMonitorApp;
 extern	WCHAR			wszConfigFilePath[MAX_PATH + 1];
 extern	BOOL			bKLExitReadConfigThread;
-extern WCHAR g_szCurApp[];
 
 #pragma data_seg( "SharedSegment" )
 extern	BOOL		bKLExitAllReadConfigThread;
@@ -25,14 +24,10 @@ DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam)
     }
 
     HMODULE hMod = NULL;
-    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)TransferLinkListData, &hMod))
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)ReadNewKLConfiguration, &hMod))
     {
         return GetLastError();
     }
-
-    WCHAR szMsg[MAX_PATH];
-    swprintf_s(szMsg, L"ReadNewKLConfiguration running in %s, threadID %u", g_szCurApp, GetCurrentThreadId());
-    OutputDebugString(szMsg);
 
     while (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE) {
         DWORD dwWait = WaitForSingleObject(hConfigChangeEvent, 1000);
@@ -41,9 +36,6 @@ DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam)
             ResetEvent(hConfigChangeEvent);
         }
     }
-    swprintf_s(szMsg, L"ReadNewKLConfiguration exiting from %s, threadID %u, %d, %d", g_szCurApp, GetCurrentThreadId(),
-        bKLExitAllReadConfigThread, bKLExitReadConfigThread);
-    OutputDebugString(szMsg);
 
     (void)CloseHandle(hConfigChangeEvent);
     FreeLibraryAndExitThread(hMod, ERROR_SUCCESS);

