@@ -25,13 +25,13 @@ DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam)
     }
 
     HMODULE hMod = NULL;
-    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)ReadNewKLConfiguration, &hMod))
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)TransferLinkListData, &hMod))
     {
         return GetLastError();
     }
 
     WCHAR szMsg[MAX_PATH];
-    swprintf_s(szMsg, L"ReadNewKLConfiguration running in %s, threadID %u\n", g_szCurApp, GetCurrentThreadId());
+    swprintf_s(szMsg, L"ReadNewKLConfiguration running in %s, threadID %u", g_szCurApp, GetCurrentThreadId());
     OutputDebugString(szMsg);
 
     while (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE) {
@@ -41,7 +41,7 @@ DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam)
             ResetEvent(hConfigChangeEvent);
         }
     }
-    swprintf_s(szMsg, L"ReadNewKLConfiguration exiting from %s, threadID %u, %d, %d\n", g_szCurApp, GetCurrentThreadId(),
+    swprintf_s(szMsg, L"ReadNewKLConfiguration exiting from %s, threadID %u, %d, %d", g_szCurApp, GetCurrentThreadId(),
         bKLExitAllReadConfigThread, bKLExitReadConfigThread);
     OutputDebugString(szMsg);
 
