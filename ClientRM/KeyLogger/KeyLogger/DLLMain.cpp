@@ -38,18 +38,16 @@ BOOLEAN WINAPI DllMain( HINSTANCE hDllHandle, DWORD  nReason, LPVOID Reserved )
 	case DLL_THREAD_ATTACH :
 		break;
 
-
 	case DLL_THREAD_DETACH :
 		break;
 
-	case DLL_PROCESS_DETACH :
+	case DLL_PROCESS_DETACH : // called when window closes
 		{
 			bKLExitReadConfigThread = TRUE;
-			StartTransfer();    // call happens when window closes
+			StartTransfer();
 
 			DeleteCriticalSection( &csLinkList );
 			DeleteCriticalSection( &csAppInit );
-
 			break;
 		}
 	}
@@ -74,9 +72,6 @@ BOOL InstallKLHook( WCHAR *CPMDirectory )
 BOOL RemoveKLHook()
 {
 	bKLExitAllReadConfigThread = TRUE;
-	SetEvent(hConfigChangeEvent);
-	WaitForSingleObject( hConfigChangeEvent, INFINITE );			// Wait untill update threads are all closed
-	Sleep(5000);													// Unhooking is delayed untill all applications close the update thread
 
 	if( hWndHook )
 	{

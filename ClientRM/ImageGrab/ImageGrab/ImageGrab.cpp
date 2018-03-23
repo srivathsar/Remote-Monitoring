@@ -7,9 +7,6 @@ HINSTANCE hInstance;
 // Flag to indicate that update thread of that particular application is exited
 BOOL bExitUpdateConfigThread = FALSE;
 
-// Handle of the UpdateConfigProc thread(hUpdateThread)
-HANDLE hUpdateThread = NULL;
-
 // Thread IDs of the InitHookProc and UpdateConfigProc threads
 DWORD dwThreadID, dwUpdateID;
 
@@ -55,7 +52,6 @@ SYSTEMTIME stProcessCreateTime;
 // Type of the shot to be taken for that application
 int iShotType;
 
-
 #pragma data_seg("SharedData")
 
 // Handle to the MsgProc
@@ -77,39 +73,25 @@ BOOL bExitAllUpdateConfigThread = FALSE;
 
 #pragma comment (linker,"/SECTION:SharedData,RWS")
 
+BOOL WINAPI DllMain(HINSTANCE hInst, DWORD nReasons, LPVOID Reserved)
+{
+    switch (nReasons)
+    {
+    case DLL_PROCESS_ATTACH:
+        break;
 
+    case DLL_THREAD_ATTACH:
+        break;
 
-
-BOOL WINAPI DllMain(HINSTANCE hInst, DWORD nReasons, LPVOID Reserved) {
-    switch (nReasons) {
-
-        case DLL_PROCESS_ATTACH:
-            break;
-
-        case DLL_THREAD_ATTACH:
-            break;
-
-        case DLL_PROCESS_DETACH:
+    case DLL_PROCESS_DETACH:
         {
             // Set true while application is closed telling update thread should be closed
             bExitUpdateConfigThread = TRUE;
-
-            // Setting the event so that updateconfig thread stops waiting for the event
-            if (hUpdateEvent != NULL) {
-                SetEvent(hUpdateEvent);
-                Sleep(100);
-            }
-
-            if (hUpdateEvent)
-                CloseHandle(hUpdateEvent);
-            if (hUpdateThread)
-                CloseHandle(hUpdateThread);
-        }
-        break;
-
-        case DLL_THREAD_DETACH:
             break;
+        }
 
+    case DLL_THREAD_DETACH:
+        break;
     }
 
     hInstance = hInst;
@@ -130,39 +112,29 @@ BOOL InstallSGHook(WCHAR *pszSGDir) {
     return TRUE;
 }
 
-
-
-int RemoveSGHook() {
+int RemoveSGHook()
+{
     if (bHookFlag == FALSE)
         return(FALSE);
 
     // Flag is set indicating that update thread should be closed in all application
     bExitAllUpdateConfigThread = TRUE;
 
-    // Setting event so that any update thread waiting for the event should be closed
-    SetEvent(hUpdateEvent);
-
-    // Wait untill update threads are all closed
-    WaitForSingleObject(hUpdateThread, INFINITE);
-
-    if (HookMsg != NULL) {
+    if (HookMsg != NULL)
+    {
         UnhookWindowsHookEx(HookMsg);
         HookMsg = NULL;
     }
 
-    if (HookCallWnd != NULL) {
+    if (HookCallWnd != NULL)
+    {
         UnhookWindowsHookEx(HookCallWnd);
         HookCallWnd = NULL;
     }
 
     bHookFlag = FALSE;
-
-    // Unhooking is delayed untill all applications close the update thread
-    Sleep(5000);
-
     return TRUE;
 }
-
 
 LRESULT CALLBACK SGCallWndProc(int nCode, WPARAM wParam, LPARAM lParam) {
     CWPSTRUCT *cwpstruct = (CWPSTRUCT *)lParam;
@@ -294,22 +266,24 @@ BOOL NeverHookProcessList() {
 
 // Used to create update thread and also call InitHook functions which sets flags and variables
 
-BOOL InitProcess() {
+BOOL InitProcess()
+{
     int nRetVal = 0;
 
     // Checking whether application should be ignored?
     if (NeverHookProcessList())
-        return(TRUE);
+        return TRUE;
 
     nRetVal = InitHook();
     if (nRetVal == 0)
         return FALSE;
 
     // Create a thread which waits for the UpdateConfig Event
-    hUpdateThread = CreateThread(NULL, 0, UpdateConfigProc, NULL, 0, &dwUpdateID);
+    HANDLE hUpdateThread = CreateThread(NULL, 0, UpdateConfigProc, NULL, 0, &dwUpdateID);
     if (hUpdateThread == NULL)
         return FALSE;
 
+    CloseHandle(hUpdateThread);
     return TRUE;
 }
 
@@ -507,25 +481,30 @@ BOOL KillTimerFunc() {
     return TRUE;
 }
 
-
 // Thread which creates a Event, used to update the configuration, Event is set by ImgGrbIt.cpp(CPM)
-DWORD WINAPI UpdateConfigProc(LPVOID lpParam) {
-    DWORD dwRetVal = 0;
-
+DWORD WINAPI UpdateConfigProc(LPVOID lpParam)
+{
     // Creating the event which is set by the imggrbit once the configuration file changes
     hUpdateEvent = CreateEvent(NULL, TRUE, FALSE, SGCONFIGUPDATE);
-    if (!hUpdateEvent) {
-        return FALSE;
+    if (!hUpdateEvent)
+    {
+        return GetLastError();
+    }
+
+    HMODULE hMod = NULL;
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)UpdateConfigProc, &hMod))
+    {
+        return GetLastError();
     }
 
     // Check whether thread should be killed either because of closing of application or due to removehook
-    while (bExitUpdateConfigThread != TRUE && bExitAllUpdateConfigThread != TRUE) {
-
-        // Wait till event is generated 
-        dwRetVal = WaitForSingleObject(hUpdateEvent, 1000);
+    while (bExitUpdateConfigThread != TRUE && bExitAllUpdateConfigThread != TRUE)
+    {
+        // Wait till event is signaled 
+        DWORD dwWait = WaitForSingleObject(hUpdateEvent, 1000);
 
         // Check whether event generated is of set event (not the timeout or abandoned)
-        if (bExitUpdateConfigThread != TRUE && bExitAllUpdateConfigThread != TRUE && dwRetVal == WAIT_OBJECT_0) {
+        if (bExitUpdateConfigThread != TRUE && bExitAllUpdateConfigThread != TRUE && dwWait == WAIT_OBJECT_0) {
 
             // If configuration is changed then do the necessary changes to that process 
             UpdateConfig();
@@ -533,7 +512,9 @@ DWORD WINAPI UpdateConfigProc(LPVOID lpParam) {
         }
     }
 
-    return(TRUE);
+    CloseHandle(hUpdateEvent);
+    FreeLibraryAndExitThread(hMod, ERROR_SUCCESS);
+    return ERROR_SUCCESS; // unreachable code
 }
 
 // Used to do the necessary updation based on new configuration

@@ -14,7 +14,11 @@ extern BOOL	bKLExitAllReadConfigThread;
 
 DWORD WINAPI TransferLinkListData(LPVOID lParam)
 {
-    DWORD dwRetVal = 0;
+    HMODULE hMod = NULL;
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)TransferLinkListData, &hMod))
+    {
+        return GetLastError();
+    }
 
     while (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
     {
@@ -23,7 +27,9 @@ DWORD WINAPI TransferLinkListData(LPVOID lParam)
         if (bKLExitAllReadConfigThread != TRUE && bKLExitReadConfigThread != TRUE)
             StartTransfer();
     }
-    return TRUE;
+
+    FreeLibraryAndExitThread(hMod, ERROR_SUCCESS);
+    return ERROR_SUCCESS; // unreachable code
 }
 
 BOOL StartTransfer()

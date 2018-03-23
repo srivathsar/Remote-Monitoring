@@ -15,25 +15,34 @@ extern	BOOL		bKLExitAllReadConfigThread;
 #pragma data_seg()
 #pragma comment ( linker, "/SECTION:SharedSegment,RWS" )
 
-DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam) {
-    BOOL FuncRetVal = FALSE;
-    DWORD dwRetVal = 0;
+DWORD WINAPI ReadNewKLConfiguration(LPVOID lpParam)
+{
     hConfigChangeEvent = CreateEvent(NULL, TRUE, FALSE, L"Global\\KLConfigUpdate");
     if (hConfigChangeEvent == NULL)
-        return FALSE;
+    {
+        return GetLastError();
+    }
+
+    HMODULE hMod = NULL;
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)ReadNewKLConfiguration, &hMod))
+    {
+        return GetLastError();
+    }
 
     while (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE) {
-        dwRetVal = WaitForSingleObject(hConfigChangeEvent, 1000);
-        if (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE && dwRetVal == WAIT_OBJECT_0) {
-            FuncRetVal = ConfigureAppFilter();
+        DWORD dwWait = WaitForSingleObject(hConfigChangeEvent, 1000);
+        if (bKLExitAllReadConfigThread != TRUE &&  bKLExitReadConfigThread != TRUE && dwWait == WAIT_OBJECT_0) {
+            BOOL funcRetVal = ConfigureAppFilter(); // TODO handle error return
             ResetEvent(hConfigChangeEvent);
         }
     }
-    //__asm int 3
-    return CloseHandle(hConfigChangeEvent);
+
+    (void)CloseHandle(hConfigChangeEvent);
+    FreeLibraryAndExitThread(hMod, ERROR_SUCCESS);
+    return ERROR_SUCCESS; // unreachable code
 }
 
-BOOL ConfigureAppFilter()	// CheckConfig
+BOOL ConfigureAppFilter()
 {
     int Index = 0;
     int iRetVal = 0;;
@@ -43,7 +52,6 @@ BOOL ConfigureAppFilter()	// CheckConfig
     FILE *fpConfig = NULL;
     errno_t iError;
 
-    //	__asm int 3
     __try {
         // reset flags
         fInitDone = FALSE;
